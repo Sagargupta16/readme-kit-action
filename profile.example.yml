@@ -1,0 +1,275 @@
+# readme-kit profile: every card of a GitHub profile README, from one file.
+#
+# Every top-level section is optional. A section that is present renders its
+# card(s); leave it out, or set it to false, and nothing is written for it.
+# Text is HTML-escaped before it reaches an SVG, and en or em dashes become
+# plain hyphens. Quote values that contain ": " or start with a special
+# character, and quote yes, no, on and off (YAML reads those as booleans).
+#
+# Cards are written to the action's output-dir (default assets/readme-kit),
+# together with snippet.md: the README markup for every card, in this order.
+#
+# This file is the profile behind the cards on github.com/Sagargupta16, and it
+# renders every image in examples/.
+
+# accent replaces the blue family on every card: text, rails, bars and glows.
+# Any #rrggbb color; the deeper shade is derived from it. Default #60a5fa.
+theme:
+  accent: "#60a5fa"
+
+# hero.svg (840x250): name, kicker, rotating taglines, a status pill, location,
+# and a constellation of up to five nodes wired to a hub.
+hero:
+  name: Sagar Gupta # required
+  kicker: Hi, I am # small line above the name, shown in capitals
+  role: ProServe Cloud Consultant at AWS # read out with the name by screen readers
+  taglines: # take turns under the name, 3 seconds each, up to 12
+    - Cloud Consultant, AWS Professional Services
+    - DevOps and MLOps on AWS, in Terraform
+    - Building AI agents and MCP tooling
+    - Full stack developer, NIT Warangal alumnus
+  status: Building cloud at AWS # green pill with a pulsing dot
+  location: Hyderabad, India
+  constellation: # every label fits 5 characters
+    hub: MCP
+    nodes: [AWS, TF, K8S, ML, CI] # up to 5, each wired to the hub
+
+# terminal.svg: types each command, then shows its output lines.
+terminal:
+  prompt: "sagar@aws:~$" # a space is added after it
+  title: "sagar@aws: ~" # centered in the title bar
+  commands: # required, at least one
+    - command: whoami
+      output:
+        - "Sagar Gupta  |  Cloud Consultant, AWS Professional Services (DevOps / MLOps)"
+    - command: ls ~/published
+      color: sky # output color: accent, sky, green or amber; default is dimmed white
+      output:
+        - aws-samples/sample-sagemaker-image-classification-mlops
+        - aws-samples/sample-aws-terraform-org-governance
+    - command: leetcode --profile sagargupta1610
+      color: amber
+      output:
+        - "Guardian  |  rating 2166  |  top 1.11%  |  107 contests  |  1322 solved"
+
+# header-<key>-dark.svg and header-<key>-light.svg per entry, numbered 01, 02
+# and so on in this order. key names the files; it defaults to the title in
+# lowercase with hyphens (Featured Projects -> featured-projects).
+headers:
+  - title: Experience # required
+    subtitle: where I work and what shipped
+    key: experience
+  - title: Featured Projects
+    subtitle: what I have built and shipped
+    key: projects
+  - title: Community and Developer Tools
+    subtitle: open tooling for Claude Code and MCP
+    key: community
+  - title: Open Source
+    subtitle: merged upstream work
+    key: opensource
+  - title: Connect With Me
+    subtitle: where to find me
+    key: connect
+  - title: Tech Stack and Tools
+    subtitle: what I work with daily
+    key: stack
+  - title: GitHub Stats
+    subtitle: activity, streaks and contests
+    key: stats
+  - title: Certifications and Badges
+    subtitle: verified on Credly
+    key: certs
+
+# divider.svg: a hairline with a pulse running along it. No options.
+divider: true
+
+# timeline.svg: milestones on a rail, oldest first. The last milestone is drawn
+# as current (green, with a pulsing ring). expand opens it into a second rail
+# of dated items, and makes the card taller (330 instead of 160).
+timeline:
+  title: Career
+  milestones: # required, 2 to 6
+    - year: 2021 # required
+      title: MCA, NIT Warangal # required
+      subtitle: NIMCET AIR 208
+    - year: 2023
+      title: Software Dev Intern
+      subtitle: Ikarus-3D, Mohali
+    - year: 2024
+      title: ProServe DevOps Intern
+      subtitle: AWS, Hyderabad
+    - year: 2024
+      tag: Full time # printed after the year
+      title: DevOps/MLOps Cloud Consultant
+      subtitle: AWS, Hyderabad
+  expand:
+    title: Customer engagements
+    items: # required, 1 to 6
+      - when: Oct 2024 to Aug 2025 # required
+        title: State Street # required
+        subtitle: Terraform module library
+      - when: Aug 2025 to Dec 2025
+        title: DTCC
+        subtitle: Terraform modernization
+      - when: Feb 2026 to now
+        title: RWS
+        subtitle: Lead DevOps, landing zone
+
+# stats.svg: a four-column grid of big values, as many rows as needed.
+# color: accent, sky, green or amber; default accent.
+stats:
+  - value: 10/10 # required
+    label: average client CSAT # required
+    color: green
+  - value: 5/5
+    label: average Pulse feedback
+    color: green
+  - value: 2
+    label: published AWS samples
+    color: sky
+  - value: 5x
+    label: TFC ambassador
+    color: sky
+  - value: 11
+    label: merged upstream contributions
+  - value: 6
+    label: industry certifications
+  - value: Guardian
+    label: LeetCode, top 1.11%
+    color: amber
+  - value: "1,322"
+    label: LeetCode problems solved
+    color: amber
+
+# tiles.svg: one row of up to six tiles. logo is an https URL of a PNG, JPEG,
+# GIF, WebP or SVG image (256 KB at most), fetched at render time and inlined;
+# with no logo, or when the fetch fails, the tile shows a two-letter monogram.
+tiles:
+  title: Worked with  |  Average CSAT 10/10  |  Average Pulse 5/5
+  items: # required, 1 to 6
+    - name: Amazon Web Services # required
+      subtitle: DevOps/MLOps Cloud Consultant
+      logo: "https://www.google.com/s2/favicons?domain=aws.amazon.com&sz=64"
+    - name: RWS
+      subtitle: Lead DevOps Consultant
+      logo: "https://www.google.com/s2/favicons?domain=rws.com&sz=64"
+    - name: DTCC
+      subtitle: DevOps Consultant
+      logo: "https://www.google.com/s2/favicons?domain=dtcc.com&sz=64"
+    - name: State Street
+      subtitle: DevOps Consultant
+    - name: Ikarus-3D
+      subtitle: Software Developer Associate (intern)
+
+# panels.svg: up to four titled lists in a 2x2 grid, each entry with its year
+# on the right. Panel colors run sky, accent, green, amber; color overrides one.
+panels:
+  title: Publications, talks and recognition
+  items: # required, 1 to 4
+    - title: AWS samples # required
+      entries: # required
+        - text: SageMaker Image Classification MLOps Pipeline # required
+          year: 2026
+        - text: Terraform AWS Organizations Governance on Control Tower
+          year: 2026
+    - title: Publications
+      entries:
+        - text: 3 APG Patterns peer reviewed
+          year: "2025-2026"
+        - text: "APG pattern: Secure PR Previews and Approval-Gated Releases for Amplify Gen 2 with GitHub"
+          year: 2025
+    - title: Tech talks
+      entries:
+        - text: GitOps Configuration Safety with Health Checks and Pipeline Gating
+          year: 2026
+        - text: Automating Unit Testing for Terraform using Terraform Test and PyTest frameworks
+          year: 2025
+    - title: Recognition
+      entries:
+        - text: ProServe MLOps SME Program Graduate
+          year: 2025
+        - text: "5x TFC Ambassador: AI/ML, NGDE (Graduated), CloudOps (AWS DevOps Agent), Agentic AI, Serverless"
+          year: "2025-2026"
+        - text: Associate Speaker Certification
+          year: 2026
+        - text: "AWS T&C Subject Matter Expert (SME) Program Contributor"
+          year: 2025
+        - text: ML Hackathon 2025, 26th/238 teams
+          year: 2025
+
+# project-<key>.svg per entry, 410 wide so two sit side by side. The card shows
+# the first sentence of description, cut to three lines, and the first tech
+# chips that fit. live: true shows a pulsing LIVE badge instead of SOURCE.
+# url is where the card links in snippet.md. key defaults to the title.
+projects:
+  - title: Kalchar # required
+    date: May 2026
+    description: >- # required
+      Production folk-art portfolio and commission site for a traditional artist -
+      Madhubani, Pichwai, Lippan, and Gond artwork gallery with a buy filter,
+      events, workshops, custom orders, and a server-rendered admin panel. Public
+      pages are static, catalog lives in Neon Postgres behind a single data seam,
+      and artwork images are served from Cloudflare R2.
+    tech: [Next.js 16, React 19, TypeScript, Tailwind CSS 4, Neon Postgres, Drizzle ORM, Cloudflare R2, Vercel]
+    live: true
+    url: https://kalchar.co.in/
+  - title: GitScope
+    date: March 2026
+    description: >-
+      A Chrome extension plus web dashboard that adds deep GitHub profile insights -
+      9-stat grid, coding personality badges, language breakdown, activity heatmap,
+      contribution donut, repo growth timeline, profile comparison, and a
+      leaderboard across everyone you follow. Published on the Chrome Web Store
+      with GitHub OAuth for traffic analytics.
+    tech: [JavaScript, TypeScript, Chrome Extension, Manifest V3, GitHub GraphQL API, Cloudflare Workers, esbuild]
+    live: true
+    url: https://chromewebstore.google.com/detail/gitscope/fndaanihifimmlnmkjdmjbbkbdajolff
+  - title: Ledger Sync
+    date: July 2026
+    description: >-
+      A self-hosted personal finance dashboard (v2.19.0) with an AI chatbot that
+      uses 15 read-only tool calls to answer questions about your spending, trends,
+      tax, and goals. Upload Excel/CSV bank statements, get SHA-256 deduplication,
+      50/30/20 budgeting, FIRE planning and India FY tax estimation.
+    tech: [TypeScript, React 19, FastAPI, SQLite, Tailwind CSS, AWS Bedrock, OpenAI, Anthropic]
+    live: true
+    url: https://sagargupta.online/ledger-sync/
+  - title: Blue Green AWS Terraform
+    date: July 2025
+    description: >-
+      A comprehensive Infrastructure as Code solution for implementing Blue-Green
+      deployment on AWS using Terraform, providing a complete CI/CD pipeline with
+      zero-downtime deployments across ECS on EC2, ALB, CodePipeline, and
+      KMS-encrypted artifacts.
+    tech: [Terraform, AWS, Docker, ECS on EC2, CodePipeline, HCL]
+    url: https://github.com/Sagargupta16/Blue_Green_AWS_Terraform
+
+# button-<key>.svg per entry (156x44, wider only for long labels). icon is a
+# simple-icons slug (https://simpleicons.org), fetched from cdn.jsdelivr.net at
+# render time; without one the label is centered. url (https or mailto) is
+# where the button links in snippet.md. key defaults to the label.
+buttons:
+  - label: LinkedIn # required
+    icon: linkedin
+    url: https://www.linkedin.com/in/sagar-gupta-16-10
+  - label: LeetCode
+    icon: leetcode
+    url: https://leetcode.com/sagargupta1610/
+  - label: Portfolio
+    icon: googlechrome
+    url: https://sagargupta.online/portfolio-react/
+  - label: Email
+    icon: gmail
+    url: mailto:sg85207@gmail.com
+  - label: GitHub
+    icon: github
+    url: https://github.com/Sagargupta16
+
+# footer.svg: a kicker, rotating sign-off lines and an animated wave.
+footer:
+  kicker: Sagar Gupta  |  AWS Professional Services
+  lines: # required, 1 to 12
+    - Thanks for visiting
+    - Open to collaboration
+    - "Let's build something great"

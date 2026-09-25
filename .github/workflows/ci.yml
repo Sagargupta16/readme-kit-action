@@ -1,0 +1,88 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.13"
+      # Versions pinned deliberately: ruff 0.16.0 grew its default ruleset from 59
+      # rules to 413, which turned an unchanged tree red in a sibling repo. Bump by
+      # hand, Renovate does not read versions inside a `run:` block.
+      - name: Install ruff
+        run: "pip install --only-binary :all: ruff==0.16.6"
+      - name: Lint
+        run: ruff check .
+
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        # 3.13 is what action.yml installs for consumers, so it must be covered.
+        python-version: ["3.12", "3.13", "3.14"]
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: ${{ matrix.python-version }}
+      # Same PyYAML pin as action.yml, so the tests run against what consumers get.
+      - name: Install pytest and PyYAML
+        run: "pip install --only-binary :all: pytest==9.1.1 pyyaml==6.0.3"
+      - name: Test
+        run: pytest -v
+
+  action:
+    # The only job that runs action.yml itself, with live icon and logo downloads.
+    # Lint and test never load it, so a broken output mapping or install step
+    # would pass both of them.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Run the action from this checkout
+        id: kit
+        uses: ./
+        with:
+          config: profile.example.yml
+          output-dir: ci-out
+
+      - name: Assert every card was written and parses
+        env:
+          FILES: ${{ steps.kit.outputs.files }}
+        run: |
+          set -euo pipefail
+          case "$FILES" in
+            ''|*[!0-9]*) echo "::error::the files output is not a number: '$FILES'"; exit 1 ;;
+          esac
+          python - <<'EOF'
+          import os
+          import xml.etree.ElementTree as ET
+          from pathlib import Path
+
+          out = Path("ci-out")
+          svgs = sorted(out.glob("*.svg"))
+          files = int(os.environ["FILES"])
+          assert (out / "snippet.md").is_file(), "snippet.md was not written"
+          assert len(svgs) + 1 == files, f"files={files}, but {len(svgs)} SVGs plus snippet.md are on disk"
+          examples = sorted(p.name for p in Path("examples").glob("*.svg"))
+          assert [p.name for p in svgs] == examples, "examples/ is stale: re-render it from profile.example.yml"
+          for svg in svgs:
+              root = ET.parse(svg).getroot()
+              assert root.tag == "{http://www.w3.org/2000/svg}svg", svg.name
+              assert root.get("role") == "img" and root.get("aria-label") is not None, svg.name
+          for svg in out.glob("button-*.svg"):
+              assert "<path d=" in svg.read_text(encoding="utf-8"), f"{svg.name} has no simple-icons icon"
+          assert "data:image/" in (out / "tiles.svg").read_text(encoding="utf-8"), "no tile logo was inlined"
+          print(f"{len(svgs)} SVGs parsed, snippet.md written, files={files}")
+          EOF

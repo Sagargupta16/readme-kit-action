@@ -1,0 +1,28 @@
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.venv/
+venv/
+*.egg-info/
+build/
+dist/
+
+# Local renders (examples/ is the committed gallery)
+assets/readme-kit/
+ci-out/
+
+# Editors and OS
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# Secrets and logs
+.env
+.env.*
+*.log

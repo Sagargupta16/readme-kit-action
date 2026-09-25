@@ -1,0 +1,45 @@
+name: "readme-kit"
+description: "Turn one profile.yml into a matching set of self-hosted animated SVG cards for your GitHub profile README"
+author: "Sagargupta16"
+
+branding:
+  icon: "layout"
+  color: "blue"
+
+inputs:
+  config:
+    description: "Path to the profile YAML file"
+    required: false
+    default: "profile.yml"
+  output-dir:
+    description: "Directory the SVG cards and snippet.md are written to"
+    required: false
+    default: "assets/readme-kit"
+
+outputs:
+  files:
+    description: "Number of files written to output-dir: every SVG card plus snippet.md"
+    value: ${{ steps.render.outputs.files }}
+
+runs:
+  using: "composite"
+  steps:
+    - name: Set up Python
+      uses: actions/setup-python@v7
+      with:
+        python-version: "3.13"
+
+    # Wheel only and pinned, so a consumer run never builds PyYAML from source
+    # and never picks up a release nobody has tested here.
+    - name: Install PyYAML
+      shell: bash
+      run: |
+        python -m pip install --quiet --only-binary :all: pyyaml==6.0.3
+
+    - name: Render cards
+      id: render
+      shell: bash
+      env:
+        CONFIG_PATH: ${{ inputs.config }}
+        OUTPUT_DIR: ${{ inputs.output-dir }}
+      run: python "${{ github.action_path }}/readme_kit.py"
