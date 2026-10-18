@@ -352,7 +352,7 @@ def _expansion(cfg: dict, right: float, top_y: int, pal: Palette) -> list[str]:
     for i, item in enumerate(items):
         x = sub_left + i * sub_step
         at = open_at + 0.3 + sub_draw * i / sub_last
-        current = i == sub_last
+        current = i == len(items) - 1
         color = GREEN if current else SKY
         parts.append(
             f'<line x1="{x}" y1="{bracket_y}" x2="{x}" y2="{sub_y - 8}" stroke="rgba(255,255,255,0.12)" stroke-width="1"/>'
