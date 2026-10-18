@@ -10,7 +10,7 @@ The runtime is the Python standard library plus PyYAML 6.0.3. Locally everything
 
 CI (`.github/workflows/ci.yml`) runs three jobs on every push to `main` and every pull request:
 
-- `lint`: `pip install --only-binary :all: ruff==0.16.6`, then `ruff check .` on Python 3.13
+- `lint`: `pip install --only-binary :all: ruff==0.17.1`, then `ruff check .` on Python 3.13
 - `test`: `pip install --only-binary :all: pytest==9.1.1 pyyaml==6.0.3`, then `pytest -v` on Python 3.12, 3.13 and 3.14
 - `action`: runs `action.yml` from the checkout on `profile.example.yml` with live downloads into `ci-out/`, then asserts the `files` output equals the SVGs on disk plus `snippet.md`, every SVG parses, every button has its icon, a tile logo was inlined, and `ci-out/` holds the same card names as `examples/`
 
@@ -18,7 +18,7 @@ Run the first two locally:
 
 ```bash
 uv run --no-project --with pytest==9.1.1 --with pyyaml==6.0.3 pytest -v
-uvx ruff@0.16.6 check .
+uvx ruff@0.17.1 check .
 ```
 
 After changing a card or `profile.example.yml`, re-render the gallery (this needs network for icons and logos) and commit the result:

@@ -20,7 +20,7 @@ jobs:
       # rules to 413, which turned an unchanged tree red in a sibling repo. Bump by
       # hand, Renovate does not read versions inside a `run:` block.
       - name: Install ruff
-        run: "pip install --only-binary :all: ruff==0.16.6"
+        run: "pip install --only-binary :all: ruff==0.17.1"
       - name: Lint
         run: ruff check .
 
