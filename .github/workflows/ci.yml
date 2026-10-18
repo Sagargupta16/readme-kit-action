@@ -88,11 +88,13 @@ jobs:
           EOF
 
       # commit and branch push to origin. Point it at a bare repo on the runner, so
-      # both modes run for real without write access to this repository.
+      # both modes run for real without write access to this repository. The
+      # checkout is shallow, so the bare repo has to accept a shallow push.
       - name: Give commit and branch a local origin to push to
         run: |
           set -euo pipefail
           git init --quiet --bare "$RUNNER_TEMP/origin.git"
+          git --git-dir="$RUNNER_TEMP/origin.git" config receive.shallowUpdate true
           git remote set-url origin "$RUNNER_TEMP/origin.git"
           git switch --quiet -c ci-cards
           git push --quiet -u origin ci-cards
