@@ -1,0 +1,16 @@
+# Live stats for the CI action job. github.user is left out on purpose, so the
+# action's default (the repository owner) is what gets checked.
+stats:
+  - github: repos
+    label: public repositories
+  - github: followers
+    label: followers
+  - github: stars
+    label: stars on own repositories
+    color: amber
+  - github: merged-prs
+    label: merged pull requests
+    color: green
+  - github: upstream-merged-prs
+    label: merged in other repositories
+    color: sky

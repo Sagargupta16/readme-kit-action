@@ -15,11 +15,30 @@ inputs:
     description: "Directory the SVG cards and snippet.md are written to"
     required: false
     default: "assets/readme-kit"
+  commit:
+    description: "true to commit output-dir on the checked-out branch and push it (needs contents: write)"
+    required: false
+    default: "false"
+  branch:
+    description: "Push the cards to this branch instead, as its only commit, so your main history stays clean; implies commit"
+    required: false
+    default: ""
+  commit-message:
+    description: "Message for the commit that commit or branch makes"
+    required: false
+    default: "chore: render readme cards"
+  token:
+    description: "Token for the GitHub API, used only when a stats entry reads a live number"
+    required: false
+    default: ${{ github.token }}
 
 outputs:
   files:
     description: "Number of files written to output-dir: every SVG card plus snippet.md"
     value: ${{ steps.render.outputs.files }}
+  committed:
+    description: "true when commit or branch pushed a new commit, false otherwise"
+    value: ${{ steps.render.outputs.committed }}
 
 runs:
   using: "composite"
@@ -46,5 +65,9 @@ runs:
       env:
         CONFIG_PATH: ${{ inputs.config }}
         OUTPUT_DIR: ${{ inputs.output-dir }}
+        COMMIT: ${{ inputs.commit }}
+        BRANCH: ${{ inputs.branch }}
+        COMMIT_MESSAGE: ${{ inputs.commit-message }}
+        GITHUB_TOKEN: ${{ inputs.token }}
       run: |
         "${{ steps.python.outputs.python-path }}" "$GITHUB_ACTION_PATH/readme_kit.py"
