@@ -25,11 +25,19 @@ class FetchError(Exception):
     """A download was refused or failed; the card is drawn without it."""
 
 
-def fetch_bytes(url: str, allowed: str, limit: int) -> bytes:
-    """Return the body of url, refusing anything off the allowlist, off https, or over limit bytes."""
+def fetch_bytes(
+    url: str, allowed: str, limit: int, headers: dict[str, str] | None = None
+) -> bytes:
+    """Return the body of url, refusing anything off the allowlist, off https, or over limit bytes.
+
+    headers are sent to url only: urllib drops unredirected headers on a redirect, so a
+    token never follows one to another host.
+    """
     if not url.startswith(allowed):
         raise FetchError(f"refusing {url}: only {allowed} URLs are fetched")
     request = urllib.request.Request(url, headers={"User-Agent": USER_AGENT})
+    for name, value in (headers or {}).items():
+        request.add_unredirected_header(name, value)
     try:
         # the scheme and host were checked against the allowlist above
         with urllib.request.urlopen(request, timeout=20) as resp:  # nosec B310

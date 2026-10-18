@@ -9,11 +9,13 @@ from pathlib import Path
 
 import yaml
 
+from readme_kit.github import METRICS
 from readme_kit.svg import COLOR_NAMES
 
 KEY_RE = re.compile(r"[a-z0-9]+(?:-[a-z0-9]+)*")
 SLUG_RE = re.compile(r"[a-z0-9]+")
 HEX_RE = re.compile(r"#[0-9a-fA-F]{6}")
+USER_RE = re.compile(r"[A-Za-z0-9](?:-?[A-Za-z0-9]){0,38}")
 EN_DASH, EM_DASH = chr(0x2013), chr(0x2014)
 # XML 1.0 forbids these even as character references, so they must never reach an SVG
 INVALID_XML = re.compile(
@@ -227,6 +229,16 @@ class Fields(Spec):
         return out
 
 
+class Stat(Fields):
+    """A stats entry: a typed value, a live GitHub number, or both (the value is then the fallback)."""
+
+    def check(self, value: object, path: str, errors: list[str]) -> dict | None:
+        out = super().check(value, path, errors)
+        if out is not None and not out["value"] and out["github"] is None:
+            errors.append(f"{path}: set value, github, or both")
+        return out
+
+
 COLOR = Choice(COLOR_NAMES)
 KEY = Text(
     pattern=KEY_RE,
@@ -237,6 +249,9 @@ NODE = Text(required=True, max_len=5)
 SECTIONS: dict[str, Spec] = {
     "theme": Fields(
         {"accent": Text(pattern=HEX_RE, expect="a 6-digit hex color like '#60a5fa'")}
+    ),
+    "github": Fields(
+        {"user": Text(pattern=USER_RE, expect="a GitHub username like 'octocat'")}
     ),
     "hero": Fields(
         {
@@ -353,8 +368,13 @@ SECTIONS: dict[str, Spec] = {
         }
     ),
     "stats": ListOf(
-        Fields(
-            {"value": Text(required=True), "label": Text(required=True), "color": COLOR}
+        Stat(
+            {
+                "value": Text(),
+                "github": Choice(METRICS),
+                "label": Text(required=True),
+                "color": COLOR,
+            }
         ),
         min_items=1,
     ),
@@ -386,7 +406,9 @@ SECTIONS: dict[str, Spec] = {
         min_items=1,
     ),
 }
-CARDS = [name for name in SECTIONS if name != "theme"]
+# sections that configure the others and write no file
+SETTINGS = ("theme", "github")
+CARDS = [name for name in SECTIONS if name not in SETTINGS]
 # sections that write one file per entry, and the field their file name comes from
 KEYED = {"headers": "title", "buttons": "label", "projects": "title"}
 

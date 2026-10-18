@@ -86,3 +86,59 @@ jobs:
           assert "data:image/" in (out / "tiles.svg").read_text(encoding="utf-8"), "no tile logo was inlined"
           print(f"{len(svgs)} SVGs parsed, snippet.md written, files={files}")
           EOF
+
+      # commit and branch push to origin. Point it at a bare repo on the runner, so
+      # both modes run for real without write access to this repository. The
+      # checkout is shallow, so the bare repo has to accept a shallow push.
+      - name: Give commit and branch a local origin to push to
+        run: |
+          set -euo pipefail
+          git init --quiet --bare "$RUNNER_TEMP/origin.git"
+          git --git-dir="$RUNNER_TEMP/origin.git" config receive.shallowUpdate true
+          git remote set-url origin "$RUNNER_TEMP/origin.git"
+          git switch --quiet -c ci-cards
+          git push --quiet -u origin ci-cards
+
+      - name: Run with commit
+        id: commit
+        uses: ./
+        with:
+          config: profile.example.yml
+          output-dir: ci-commit
+          commit: true
+
+      - name: Run with commit again, nothing changed
+        id: recommit
+        uses: ./
+        with:
+          config: profile.example.yml
+          output-dir: ci-commit
+          commit: true
+
+      - name: Run with branch and live GitHub stats
+        id: branch
+        uses: ./
+        with:
+          config: tests/live-stats.yml
+          output-dir: ci-branch
+          branch: cards
+
+      - name: Assert what commit and branch pushed
+        env:
+          COMMITTED: ${{ steps.commit.outputs.committed }}
+          RECOMMITTED: ${{ steps.recommit.outputs.committed }}
+          BRANCHED: ${{ steps.branch.outputs.committed }}
+        run: |
+          set -euo pipefail
+          origin="$RUNNER_TEMP/origin.git"
+          test "$COMMITTED" = true || { echo "::error::commit pushed nothing"; exit 1; }
+          test "$RECOMMITTED" = false || { echo "::error::an unchanged render made a commit"; exit 1; }
+          test "$BRANCHED" = true || { echo "::error::branch pushed nothing"; exit 1; }
+          test "$(git --git-dir="$origin" log -1 --format=%an ci-cards)" = "github-actions[bot]"
+          git --git-dir="$origin" ls-tree --name-only ci-cards ci-commit/ | grep -q "ci-commit/hero.svg"
+          test "$(git --git-dir="$origin" rev-list --count cards)" = 1
+          test "$(git --git-dir="$origin" ls-tree --name-only cards | paste -sd, -)" = "snippet.md,stats.svg"
+          stats="$(git --git-dir="$origin" show cards:stats.svg)"
+          if grep -q "n/a" <<<"$stats"; then echo "::error::a live stat was not read"; exit 1; fi
+          git --git-dir="$origin" show cards:snippet.md | grep -q "https://raw.githubusercontent.com/$GITHUB_REPOSITORY/cards/stats.svg"
+          grep -o 'aria-label="[^"]*"' <<<"$stats"

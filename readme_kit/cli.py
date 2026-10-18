@@ -6,11 +6,14 @@ import argparse
 import itertools
 import os
 import sys
+import urllib.parse
 from html import escape
 from pathlib import Path
 
-from readme_kit import config
+from readme_kit import config, publish
 from readme_kit.cards import Card, render_all
+
+DEFAULT_MESSAGE = "chore: render readme cards"
 
 
 def report(level: str, message: str) -> None:
@@ -66,12 +69,47 @@ def snippet(cards: list[Card], src_dir: str) -> str:
         elif kind == "card":
             blocks += [_img(f"{base}/{card.name}", card, FULL) for card in items]
     body = "\n\n".join(blocks)
+    where = (
+        "the images load from the output branch."
+        if base.startswith("https://")
+        else "paths are relative to the repository root."
+    )
     return (
         "# readme-kit snippet\n\n"
         "Markup for every card, in profile order. Copy what you need into your README; "
-        "paths are relative to the repository root.\n\n"
+        f"{where}\n\n"
         f"```html\n{body}\n```\n"
     )
+
+
+def src_base(output_dir: str) -> str:
+    """Where snippet.md points: output-dir relative to the repository root (the working directory)."""
+    path = Path(output_dir)
+    if not path.is_absolute():
+        return output_dir
+    try:
+        return path.resolve().relative_to(Path.cwd().resolve()).as_posix()
+    except ValueError:
+        report(
+            "warning",
+            f"{output_dir} is outside the working directory, so the image paths in snippet.md "
+            "are absolute and will not work in a README",
+        )
+        return output_dir
+
+
+def raw_base(repository: str, branch: str) -> str:
+    """The raw.githubusercontent.com folder a README links to for files on another branch."""
+    return f"https://raw.githubusercontent.com/{repository}/{urllib.parse.quote(branch, safe='/')}"
+
+
+def env_flag(name: str) -> bool:
+    value = os.environ.get(name, "").strip().lower()
+    if value in ("", "false"):
+        return False
+    if value == "true":
+        return True
+    raise ValueError(f"{name} must be true or false, got {os.environ[name]!r}")
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -89,7 +127,36 @@ def main(argv: list[str] | None = None) -> int:
         default=os.environ.get("OUTPUT_DIR") or "assets/readme-kit",
         help="directory the files are written to (default: $OUTPUT_DIR, then assets/readme-kit)",
     )
+    parser.add_argument(
+        "--commit",
+        action="store_true",
+        help="commit output-dir on the checked-out branch and push it (default: $COMMIT)",
+    )
+    parser.add_argument(
+        "--branch",
+        default=os.environ.get("BRANCH") or None,
+        help="instead, make the cards the only commit of this branch and force-push it; "
+        "implies --commit (default: $BRANCH)",
+    )
+    parser.add_argument(
+        "--commit-message",
+        default=os.environ.get("COMMIT_MESSAGE") or DEFAULT_MESSAGE,
+        help=f"message for that commit (default: $COMMIT_MESSAGE, then {DEFAULT_MESSAGE!r})",
+    )
     args = parser.parse_args(argv)
+    try:
+        commit = args.commit or env_flag("COMMIT") or args.branch is not None
+    except ValueError as exc:
+        report("error", str(exc))
+        return 1
+    repository = os.environ.get("GITHUB_REPOSITORY", "")
+    if args.branch and "/" not in repository:
+        report(
+            "error",
+            "branch needs $GITHUB_REPOSITORY (owner/repo) to write the image URLs in snippet.md; "
+            "Actions sets it, set it yourself to run locally",
+        )
+        return 1
     path = Path(args.config)
     try:
         profile = config.load(path)
@@ -103,10 +170,35 @@ def main(argv: list[str] | None = None) -> int:
     for card in cards:
         (out / card.name).write_text(card.svg + "\n", encoding="utf-8", newline="\n")
         print(f"wrote {card.name}")
+    base = (
+        raw_base(repository, args.branch) if args.branch else src_base(args.output_dir)
+    )
     (out / "snippet.md").write_text(
-        snippet(cards, args.output_dir), encoding="utf-8", newline="\n"
+        snippet(cards, base), encoding="utf-8", newline="\n"
     )
     written = len(cards) + 1
     print(f"{written} files written to {out}")
     set_output("files", str(written))
+    if not commit:
+        set_output("committed", "false")
+        return 0
+    return _publish(
+        out, [card.name for card in cards], args.branch, args.commit_message
+    )
+
+
+def _publish(out: Path, card_names: list[str], branch: str | None, message: str) -> int:
+    """Commit the written files here, or to branch when one is set, and report the result."""
+    try:
+        if branch:
+            names = card_names + ["snippet.md"]
+            sha = publish.commit_to_branch(out, names, branch, message)
+        else:
+            sha = publish.commit_here(out, message)
+    except publish.PublishError as exc:
+        report("error", str(exc))
+        set_output("committed", "false")
+        return 1
+    print(f"committed {sha}" if sha else "the cards did not change, nothing to commit")
+    set_output("committed", "true" if sha else "false")
     return 0

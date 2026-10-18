@@ -97,6 +97,8 @@ rail of dated items
    on:
      push:
        paths: [profile.yml]
+     schedule:
+       - cron: "0 3 * * *" # daily, only needed for live GitHub stats
      workflow_dispatch:
 
    permissions:
@@ -109,22 +111,39 @@ rail of dated items
          - uses: actions/checkout@v7
 
          - uses: Sagargupta16/readme-kit-action@v1
-
-         - name: Commit the cards
-           run: |
-             git config user.name "github-actions[bot]"
-             git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-             git add assets/readme-kit
-             if ! git diff --cached --quiet; then
-               git commit -m "chore: render readme cards"
-               git push
-             fi
+           with:
+             commit: true
    ```
 
 3. Push `profile.yml`. The cards land in `assets/readme-kit/`, together with `snippet.md`:
    the README markup for every card, in profile order. Paste what you need into README.md.
 
-The action only writes files on the runner. Committing them is your workflow's job, as above.
+With `commit: true` the action commits `output-dir` as `github-actions[bot]` and pushes it,
+and only when a card changed. Leave `commit` out and the action only writes files on the
+runner, so your own steps decide what gets committed.
+
+### Keep the cards off your main branch
+
+Set `branch` instead and the cards go to that branch, as its only commit, force-pushed
+on each run. Your main branch history gets no render commits, and a card you remove from
+the profile disappears from the branch on the next run.
+
+```yaml
+      - uses: Sagargupta16/readme-kit-action@v1
+        with:
+          branch: readme-kit
+```
+
+A README can only use a relative path for files on its own branch, so in this mode
+`snippet.md` (on the output branch) points at
+`https://raw.githubusercontent.com/<owner>/<repo>/readme-kit/<card>.svg`.
+
+readme-kit replaces a branch only if it does not exist yet or its tip is a parentless
+commit carrying the `Generated-by: readme-kit` trailer. Point `branch` at `main` by
+mistake and the run fails with an error instead of wiping your history.
+
+`commit` needs a branch checked out, so it fails on `pull_request` runs, which check out a
+merge commit. Use `push`, `schedule` or `workflow_dispatch`.
 
 ## How it works
 
@@ -134,19 +153,26 @@ flowchart TD
     B -->|any error| X["error annotations, exit 1"]
     B --> C["cards.py: render_all<br/>11 renderers, one per card type"]
     C -->|button icons, tile logos| D["fetch.py: https only<br/>size caps, byte sniffing"]
+    C -->|stats with github:| G["github.py: REST API numbers<br/>token sent to api.github.com only"]
+    G --> D
     C --> E["cli.py: write the SVGs and snippet.md<br/>set the files output"]
-    E --> F[your workflow commits output-dir]
+    E -->|commit or branch| P["publish.py: commit and push<br/>or one orphan commit on the output branch"]
+    E -->|neither| F[your workflow commits output-dir]
 ```
 
 1. **Validate.** `config.py` holds the whole schema in `SECTIONS`. It checks every section
    before anything renders, fills in defaults, and resolves each card's file name.
 2. **Fetch.** `fetch.py` is the only network code. It downloads simple-icons glyphs for
    buttons and logos for tiles, https only, with size caps and a check of the image bytes.
-   A failed download is a warning, never a failed run.
+   `github.py` reads live stats through it. A failed download is a warning, never a failed
+   run.
 3. **Render.** `cards.py` has one renderer per card type, built on the shared palette and
    SVG primitives in `svg.py`. Every profile string is HTML-escaped before it reaches an SVG.
 4. **Write.** `cli.py` writes each SVG and `snippet.md` to `output-dir` and sets the
-   `files` output. Your workflow decides what gets committed.
+   `files` output.
+5. **Publish (opt-in).** With `commit` or `branch`, `publish.py` commits the cards with
+   plain git. For `branch` it builds the tree with `git mktree` and a parentless commit with
+   `git commit-tree`, so your working tree and index are never touched.
 
 Design decisions:
 
@@ -157,7 +183,25 @@ Design decisions:
 - **CSS and SMIL animation only.** GitHub shows README images through `<img>`, where scripts
   never run, so the cards animate without any.
 - **Offline tests.** The test suite blocks the network and feeds canned bytes to every
-  download, so a CDN outage cannot turn CI red. The `action` CI job covers the live path.
+  download, so a CDN outage cannot turn CI red. The commit and branch tests run real git
+  against a bare repository in a temp folder. The `action` CI job covers the live path.
+
+## Numbers
+
+Measured with [`scripts/benchmark.py`](scripts/benchmark.py) on 2026-10-18, Python 3.13.15
+on Windows AMD64:
+
+| Measure | Value |
+| --- | --- |
+| Cards rendered from profile.example.yml | 33 |
+| Downloads (simple-icons glyphs and tile logos) | 8 |
+| First render, downloads included | 1,012 ms |
+| Render with downloads cached, median of 50 | 0.7 ms |
+| All cards together | 76.5 KB |
+| Median card | 1.1 KB |
+| Largest card (tiles.svg) | 8.8 KB |
+
+The network is nearly all of the run time. The largest card is the one with inlined logos.
 
 ## Using the cards in your README
 
@@ -191,12 +235,46 @@ the variant that matches the viewer's theme:
 | --- | --- | --- |
 | `config` | `profile.yml` | Path to the profile YAML file |
 | `output-dir` | `assets/readme-kit` | Directory the SVGs and `snippet.md` are written to |
+| `commit` | `false` | `true` commits `output-dir` on the checked-out branch and pushes it |
+| `branch` | none | Push the cards to this branch instead, as its only commit; implies `commit` |
+| `commit-message` | `chore: render readme cards` | Message for that commit |
+| `token` | `${{ github.token }}` | Token for the GitHub API, used only by `stats` entries with `github:` |
+
+`commit` and `branch` need `permissions: contents: write` on the job.
 
 ## Outputs
 
 | Output | Description |
 | --- | --- |
 | `files` | Number of files written to `output-dir`: every SVG plus `snippet.md` |
+| `committed` | `true` when `commit` or `branch` pushed a new commit, `false` otherwise |
+
+## Live GitHub stats
+
+A `stats` entry can read its number from the GitHub API at render time instead of
+from the profile. The result is still a committed file, so a viewer never waits on an API.
+
+```yaml
+stats:
+  - github: stars
+    value: 300+ # optional fallback, shown if the API cannot be reached
+    label: stars on my repositories
+  - github: upstream-merged-prs
+    label: merged in other repositories
+```
+
+| `github:` | Number |
+| --- | --- |
+| `repos` | Public repositories |
+| `followers` | Followers |
+| `stars` | Stars on repositories the user owns, forks left out (up to 1,000 repositories) |
+| `merged-prs` | Merged pull requests the user authored, anywhere |
+| `upstream-merged-prs` | The same, in repositories the user does not own |
+
+Numbers are written with thousands separators (`1,801`). The user is `github.user` in the
+profile, or the owner of the repository the action runs in. A read that fails (rate limit,
+outage) is a warning: the card shows `value` if you set one, `n/a` if not. Add a
+`schedule` trigger to the workflow to keep the numbers fresh.
 
 ## Profile reference
 
@@ -207,6 +285,7 @@ every key in place; required keys are in bold below.
 | Section | Writes | Keys |
 | --- | --- | --- |
 | `theme` | nothing | `accent`: a `#rrggbb` color that replaces the blue family on every card |
+| `github` | nothing | `user`: whose numbers live stats read; defaults to the repository owner |
 | `hero` | `hero.svg` | **`name`**, `kicker`, `role` (alt text only: read out by screen readers, not drawn), `taglines` (up to 12), `status`, `location`, `constellation`: **`hub`** and `nodes` (up to 5), each label at most 5 characters |
 | `terminal` | `terminal.svg` | `prompt`, `title`, **`commands`**: **`command`**, `output` (lines), `color` |
 | `headers` | `header-<key>-dark.svg`, `header-<key>-light.svg` | a list of **`title`**, `subtitle`, `key` |
@@ -215,7 +294,7 @@ every key in place; required keys are in bold below.
 | `timeline` | `timeline.svg` | `title`, **`milestones`** (2 to 6): **`year`**, **`title`**, `subtitle`, `tag`; `expand`: `title`, **`items`** (1 to 6): **`when`**, **`title`**, `subtitle` |
 | `tiles` | `tiles.svg` | `title`, **`items`** (1 to 6): **`name`**, `subtitle`, `logo` (https image URL) |
 | `panels` | `panels.svg` | `title`, **`items`** (1 to 4): **`title`**, `color`, **`entries`**: **`text`**, `year` |
-| `stats` | `stats.svg` | a list of **`value`**, **`label`**, `color` |
+| `stats` | `stats.svg` | a list of `value`, `github` (a live number, see above; each entry needs `value`, `github` or both), **`label`**, `color` |
 | `buttons` | `button-<key>.svg` | a list of **`label`**, `icon` (simple-icons slug), `url` (https or mailto), `key` |
 | `projects` | `project-<key>.svg` | a list of **`title`**, **`description`**, `date`, `tech`, `live` (true or false), `url`, `key` |
 
@@ -249,17 +328,24 @@ What v1 does not do, so you know before you install it:
 - **Dark first.** Headers ship a light variant. The other cards bring their own dark
   background, except the footer, whose light text is drawn for GitHub's dark theme and
   reads poorly on the light one.
-- **No live data.** Every number is what you type into the profile. Nothing fetches
-  GitHub or LeetCode stats.
+- **Live data is GitHub only, and only on the stats card.** The five `github:` numbers
+  above are the whole list. Everything else, LeetCode included, is what you type into the
+  profile.
 - **Text is not measured.** The limits that would break a layout are enforced (5-character
   node labels, 6 tiles, 6 milestones, 4 panels); an unusually long name or tagline can
   still overflow its card.
-- **It never edits README.md**, and it does not delete a card you removed from the
-  profile. Clear `output-dir` yourself when you rename a key.
+- **It never edits README.md.** With `commit` or no publishing at all, it does not delete a
+  card you removed from the profile, so clear `output-dir` yourself when you rename a key.
+  With `branch` the branch is rebuilt from scratch on every run, so it holds exactly the
+  current cards.
 
 ## Security
 
-- **No token, no secrets.** The action needs no permissions beyond what your commit step uses.
+- **No secrets.** The `token` input defaults to the job's own `GITHUB_TOKEN` and is used
+  only when a `stats` entry has `github:`. It is sent to `https://api.github.com/` and
+  nowhere else, as an unredirected header, so a redirect never carries it to another host.
+  `commit` and `branch` push with the credentials `actions/checkout` left behind, which is
+  why they need `contents: write`.
 - **Two kinds of download, both https only**, checked before a connection opens:
   simple-icons glyphs from `cdn.jsdelivr.net/npm/simple-icons@latest`, and the tile `logo`
   URLs you list. A redirect off https is refused, a logo over 256 KB is refused, and a logo
@@ -293,12 +379,22 @@ uvx ruff@0.17.1 check .
 
 # re-render the gallery after changing a card or the example profile
 uv run --no-project --with pyyaml==6.0.3 python readme_kit.py --config profile.example.yml --output-dir examples
+
+# the Numbers table (needs network for the first render)
+uv run --no-project --python 3.13 --with pyyaml==6.0.3 python scripts/benchmark.py
 ```
+
+The same flags work locally: `--commit`, `--branch <name>` (set `GITHUB_REPOSITORY` to
+`owner/repo` first) and `--commit-message`. Live stats read `GITHUB_TOKEN` when it is set
+and go unauthenticated otherwise, which GitHub limits to 60 requests an hour.
 
 CI runs ruff on Python 3.13, pytest on 3.12, 3.13 and 3.14, and a third job that runs
 `action.yml` itself on `profile.example.yml` with live downloads. That job fails if the
 `files` output does not match what is on disk, if any SVG does not parse, if a button
-came out without its icon, or if `examples/` no longer holds the same set of cards.
+came out without its icon, or if `examples/` no longer holds the same set of cards. It
+then points `origin` at a bare repository on the runner and runs `commit` twice (the
+second run must push nothing) and `branch` once with live GitHub stats from
+[`tests/live-stats.yml`](tests/live-stats.yml), and checks what reached the remote.
 
 ## License
 

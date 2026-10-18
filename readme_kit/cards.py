@@ -2,11 +2,12 @@
 
 from __future__ import annotations
 
+import os
 from collections.abc import Callable
 from dataclasses import dataclass
 from html import escape
 
-from readme_kit import fetch
+from readme_kit import fetch, github
 from readme_kit.svg import (
     BG,
     CARD,
@@ -776,6 +777,51 @@ def _logos(tiles: list[dict], warn: Callable[[str], None]) -> dict[str, str | No
     return logos
 
 
+def _live_stats(
+    stats: list[dict], user: str | None, warn: Callable[[str], None]
+) -> list[dict]:
+    """Fill in each stat that names a github metric; on failure keep its value, or n/a."""
+    if not any(stat["github"] for stat in stats):
+        return stats
+    if not user:
+        warn(
+            "stats: no GitHub user to read numbers for; set github.user in the profile "
+            "(the action defaults it to the repository owner)"
+        )
+    client = github.Client.from_env(user) if user else None
+    live: dict[str, str | None] = {}
+    out = []
+    for i, stat in enumerate(stats):
+        metric = stat["github"]
+        if metric is None:
+            out.append(stat)
+            continue
+        if metric not in live:
+            live[metric] = _read_metric(client, metric, i, stat["value"], warn)
+        out.append({**stat, "value": live[metric] or stat["value"] or "n/a"})
+    return out
+
+
+def _read_metric(
+    client: github.Client | None,
+    metric: str,
+    i: int,
+    fallback: str | None,
+    warn: Callable[[str], None],
+) -> str | None:
+    """One live number, formatted with thousands separators, or None if it was not read."""
+    if client is None:
+        return None
+    try:
+        return f"{client.metric(metric):,}"
+    except fetch.FetchError as exc:
+        warn(
+            f"stats[{i}].github: {metric} not read ({exc}); "
+            f"showing {fallback or 'n/a'!r} instead"
+        )
+        return None
+
+
 def render_all(config: dict, warn: Callable[[str], None]) -> list[Card]:
     """Render every section present in a checked profile, in file order."""
     pal = Palette.from_accent(
@@ -783,6 +829,9 @@ def render_all(config: dict, warn: Callable[[str], None]) -> list[Card]:
     )
     icons = _icons(config.get("buttons") or [], warn)
     logos = _logos(config["tiles"]["items"] if config.get("tiles") else [], warn)
+    user = (config.get("github") or {}).get("user") or os.environ.get(
+        "GITHUB_REPOSITORY_OWNER"
+    )
     cards: list[Card] = []
     for section, value in config.items():
         match section:
@@ -803,7 +852,7 @@ def render_all(config: dict, warn: Callable[[str], None]) -> list[Card]:
             case "panels":
                 cards.append(render_panels(value, pal))
             case "stats":
-                cards.append(render_stats(value, pal))
+                cards.append(render_stats(_live_stats(value, user, warn), pal))
             case "buttons":
                 cards += render_buttons(value, pal, icons)
             case "projects":

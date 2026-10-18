@@ -12,7 +12,7 @@ CI (`.github/workflows/ci.yml`) runs three jobs on every push to `main` and ever
 
 - `lint`: `pip install --only-binary :all: ruff==0.17.1`, then `ruff check .` on Python 3.13
 - `test`: `pip install --only-binary :all: pytest==9.1.1 pyyaml==6.0.3`, then `pytest -v` on Python 3.12, 3.13 and 3.14
-- `action`: runs `action.yml` from the checkout on `profile.example.yml` with live downloads into `ci-out/`, then asserts the `files` output equals the SVGs on disk plus `snippet.md`, every SVG parses, every button has its icon, a tile logo was inlined, and `ci-out/` holds the same card names as `examples/`
+- `action`: runs `action.yml` from the checkout on `profile.example.yml` with live downloads into `ci-out/`, then asserts the `files` output equals the SVGs on disk plus `snippet.md`, every SVG parses, every button has its icon, a tile logo was inlined, and `ci-out/` holds the same card names as `examples/`. It then runs `commit` and `branch` against a bare repository on the runner (with live GitHub stats from `tests/live-stats.yml`) and checks what was pushed
 
 Run the first two locally:
 
@@ -31,7 +31,7 @@ The tests and the CI job compare only file names, so a color or layout change wi
 
 ## Conventions
 
-- Tests live in `tests/`. `tests/conftest.py` blocks `urllib.request.urlopen` for every test and provides `downloads` and `offline` fixtures, so tests never touch the network.
+- Tests live in `tests/`. `tests/conftest.py` blocks `urllib.request.urlopen` for every test and provides `downloads` and `offline` fixtures, so tests never touch the network. `tests/test_publish.py` needs `git` on PATH and uses a bare repository in a temp folder as `origin`.
 - `tests/test_cards.py` has one parametrized case per card type, and `test_every_card_type_has_a_case` fails when a card type has none.
 - `SECTIONS` in `readme_kit/config.py` is the whole profile schema. A new key goes there first.
 - A new card type touches: `SECTIONS`, a renderer in `readme_kit/cards.py`, a `case` in `render_all`, a `CASES` entry in `tests/test_cards.py`, `profile.example.yml`, a re-render of `examples/`, and the README gallery and Profile reference table.

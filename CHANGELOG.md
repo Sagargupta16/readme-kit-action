@@ -4,6 +4,36 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions follow
 [Semantic Versioning](https://semver.org/).
 
+## [1.1.0] - 2026-10-18
+
+### Added
+
+- `commit` input: commits `output-dir` on the checked-out branch as `github-actions[bot]`
+  and pushes it, only when a card changed. Quick start no longer needs a commit step.
+- `branch` input: pushes the cards to an output branch as its only commit, force-pushed
+  each run, so the main history gets no render commits and removed cards disappear. Only a
+  branch that is missing or was written by readme-kit (a parentless commit with the
+  `Generated-by: readme-kit` trailer) is replaced. `snippet.md` then links
+  raw.githubusercontent.com URLs on that branch.
+- `commit-message` input and `committed` output.
+- Live GitHub stats: a `stats` entry can set `github:` to `repos`, `followers`, `stars`,
+  `merged-prs` or `upstream-merged-prs` and gets the number from the GitHub REST API at
+  render time. `value` becomes optional and is the fallback when the read fails. A new
+  `github.user` profile key picks the user; it defaults to the repository owner.
+- `token` input (default `github.token`), sent only to api.github.com and never across a
+  redirect.
+- `--commit`, `--branch` and `--commit-message` flags for local runs.
+- `scripts/benchmark.py` and a Numbers section in the README with its measured output.
+- Tests for live stats (canned API answers) and for commit and branch (real git against a
+  bare repository in a temp folder). The CI `action` job runs both modes against a bare
+  origin on the runner, with live stats.
+
+### Fixed
+
+- An absolute `output-dir` inside the working directory is now written as a relative path
+  in `snippet.md`. Before, the image paths were absolute runner paths that never load in a
+  README. An `output-dir` outside the working directory keeps its path and gets a warning.
+
 ## [1.0.1] - 2026-10-18
 
 ### Fixed
