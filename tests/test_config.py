@@ -181,3 +181,33 @@ def test_missing_file_is_reported(tmp_path):
         config.load(tmp_path / "nope.yml")
 
     assert info.value.problems == ["file not found"]
+
+
+@pytest.mark.parametrize(
+    ("raw", "expected"),
+    [
+        ({"stats": [{"label": "stars"}]}, "stats[0]: set value, github, or both"),
+        (
+            {"stats": [{"github": "starz", "label": "stars"}]},
+            (
+                "stats[0].github: 'starz' is not one of repos, followers, stars, "
+                "merged-prs, upstream-merged-prs"
+            ),
+        ),
+        (
+            {"github": {"user": "two words"}, "hero": {"name": "Ada"}},
+            "github.user: 'two words' is not a GitHub username like 'octocat'",
+        ),
+    ],
+)
+def test_live_stats_are_checked(raw, expected):
+    assert problems(raw) == [expected]
+
+
+def test_github_alone_renders_nothing():
+    assert problems({"github": {"user": "ada"}}) == [
+        (
+            "no cards to render; add at least one of: hero, terminal, headers, divider, "
+            "footer, timeline, tiles, panels, stats, buttons, projects"
+        )
+    ]

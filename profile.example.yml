@@ -17,6 +17,11 @@
 theme:
   accent: "#60a5fa"
 
+# user is whose public numbers a stats entry with `github:` reads (see stats).
+# Optional: the action defaults it to the owner of the repository it runs in.
+# github:
+#   user: Sagargupta16
+
 # hero.svg (840x250): name, kicker, rotating taglines, a status pill, location,
 # and a constellation of up to five nodes wired to a hub.
 hero:
@@ -118,8 +123,16 @@ timeline:
 
 # stats.svg: a four-column grid of big values, as many rows as needed.
 # color: accent, sky, green or amber; default accent.
+# Each entry needs value, github, or both. github reads a live number from the
+# GitHub API at render time: repos, followers, stars (on repositories the user
+# owns, forks left out), merged-prs, or upstream-merged-prs (merged in
+# repositories the user does not own). If the read fails, value is shown
+# instead, or n/a without one. For example:
+#   - github: stars
+#     value: 300+ # shown only if the API cannot be reached
+#     label: stars on my repositories
 stats:
-  - value: 10/10 # required
+  - value: 10/10 # value, github, or both
     label: average client CSAT # required
     color: green
   - value: 5/5
