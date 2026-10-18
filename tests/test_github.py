@@ -150,9 +150,10 @@ def test_no_user_anywhere_warns_once(monkeypatch, api):
 
 def test_non_json_answer_is_a_fetch_error(monkeypatch):
     monkeypatch.setattr(fetch, "fetch_bytes", lambda *_args: b"<html>")
+    client = github.Client("ada")
 
     with pytest.raises(fetch.FetchError, match="did not return JSON"):
-        github.Client("ada").metric("repos")
+        client.metric("repos")
 
 
 def test_api_requests_only_go_to_api_github_com():

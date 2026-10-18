@@ -182,12 +182,19 @@ def main(argv: list[str] | None = None) -> int:
     if not commit:
         set_output("committed", "false")
         return 0
+    return _publish(
+        out, [card.name for card in cards], args.branch, args.commit_message
+    )
+
+
+def _publish(out: Path, card_names: list[str], branch: str | None, message: str) -> int:
+    """Commit the written files here, or to branch when one is set, and report the result."""
     try:
-        if args.branch:
-            names = [card.name for card in cards] + ["snippet.md"]
-            sha = publish.commit_to_branch(out, names, args.branch, args.commit_message)
+        if branch:
+            names = card_names + ["snippet.md"]
+            sha = publish.commit_to_branch(out, names, branch, message)
         else:
-            sha = publish.commit_here(out, args.commit_message)
+            sha = publish.commit_here(out, message)
     except publish.PublishError as exc:
         report("error", str(exc))
         set_output("committed", "false")

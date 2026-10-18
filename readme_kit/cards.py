@@ -797,17 +797,29 @@ def _live_stats(
             out.append(stat)
             continue
         if metric not in live:
-            live[metric] = None
-            if client is not None:
-                try:
-                    live[metric] = f"{client.metric(metric):,}"
-                except fetch.FetchError as exc:
-                    warn(
-                        f"stats[{i}].github: {metric} not read ({exc}); "
-                        f"showing {stat['value'] or 'n/a'!r} instead"
-                    )
+            live[metric] = _read_metric(client, metric, i, stat["value"], warn)
         out.append({**stat, "value": live[metric] or stat["value"] or "n/a"})
     return out
+
+
+def _read_metric(
+    client: github.Client | None,
+    metric: str,
+    i: int,
+    fallback: str | None,
+    warn: Callable[[str], None],
+) -> str | None:
+    """One live number, formatted with thousands separators, or None if it was not read."""
+    if client is None:
+        return None
+    try:
+        return f"{client.metric(metric):,}"
+    except fetch.FetchError as exc:
+        warn(
+            f"stats[{i}].github: {metric} not read ({exc}); "
+            f"showing {fallback or 'n/a'!r} instead"
+        )
+        return None
 
 
 def render_all(config: dict, warn: Callable[[str], None]) -> list[Card]:
