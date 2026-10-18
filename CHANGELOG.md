@@ -4,6 +4,29 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions follow
 [Semantic Versioning](https://semver.org/).
 
+## [1.0.1] - 2026-10-18
+
+### Fixed
+
+- A timeline `expand` rail with a single item now marks that item as current (green, with
+  the ring), the same way the main rail marks its last milestone. Before, a one-item rail
+  had no current item.
+- The action no longer changes the Python on the consumer's `PATH`. `setup-python` runs
+  with `update-environment: false` and the action calls that interpreter by its path, so
+  steps after readme-kit keep the Python they set up themselves.
+
+### Changed
+
+- ruff pinned to 0.17.1 in CI and the docs (was 0.16.6). The tree passes its default
+  ruleset unchanged.
+
+### Added
+
+- `SECURITY.md` and `CONTRIBUTING.md`.
+- README: Marketplace, release and license badges, and a "How it works" section with the
+  validate, fetch, render, write pipeline and the design decisions behind it.
+- README: the Profile reference notes that hero `role` is alt text only and is not drawn.
+
 ## [1.0.0] - 2026-09-25
 
 Initial release.

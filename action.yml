@@ -24,17 +24,21 @@ outputs:
 runs:
   using: "composite"
   steps:
+    # update-environment: false keeps this Python off the consumer's PATH, so
+    # steps after readme-kit still get whatever Python they set up themselves.
     - name: Set up Python
+      id: python
       uses: actions/setup-python@v7
       with:
         python-version: "3.13"
+        update-environment: false
 
     # Wheel only and pinned, so a consumer run never builds PyYAML from source
     # and never picks up a release nobody has tested here.
     - name: Install PyYAML
       shell: bash
       run: |
-        python -m pip install --quiet --only-binary :all: pyyaml==6.0.3
+        "${{ steps.python.outputs.python-path }}" -m pip install --quiet --only-binary :all: pyyaml==6.0.3
 
     - name: Render cards
       id: render
@@ -42,4 +46,5 @@ runs:
       env:
         CONFIG_PATH: ${{ inputs.config }}
         OUTPUT_DIR: ${{ inputs.output-dir }}
-      run: python "${{ github.action_path }}/readme_kit.py"
+      run: |
+        "${{ steps.python.outputs.python-path }}" "$GITHUB_ACTION_PATH/readme_kit.py"
