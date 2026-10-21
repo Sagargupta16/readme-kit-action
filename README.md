@@ -147,6 +147,14 @@ merge commit. Use `push`, `schedule` or `workflow_dispatch`.
 
 ## How it works
 
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/diagrams/pipeline-dark.svg">
+  <source media="(prefers-color-scheme: light)" srcset="docs/diagrams/pipeline-light.svg">
+  <img width="880" src="docs/diagrams/pipeline-light.svg" alt="How readme-kit works. In your profile repository, a push to profile.yml triggers your readme-kit.yml workflow, which runs the readme-kit action on the GitHub Actions runner. The action validates the profile with config.py (any error becomes an error annotation and fails the run with exit 1), renders the cards with cards.py (11 card types), and fetches over https only with fetch.py: simple-icons glyphs from jsDelivr and tile logos from their hosts. Opt-in live stats in github.py read api.github.com through fetch.py, the only host the token goes to. cli.py writes the SVGs and snippet.md, and with the opt-in commit or branch input publish.py git-pushes them to assets/readme-kit/ or an output branch, from where you paste snippet.md into README.md.">
+</picture>
+
+The spec behind the picture is [`docs/diagrams/pipeline.yaml`](docs/diagrams/pipeline.yaml), rendered with [orrery](https://github.com/Sagargupta16/orrery).
+
 ```mermaid
 flowchart TD
     A[profile.yml] --> B["config.py: validate against SECTIONS<br/>every problem reported in one pass"]
