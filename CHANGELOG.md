@@ -4,6 +4,17 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions follow
 [Semantic Versioning](https://semver.org/).
 
+## [1.1.1] - 2026-10-21
+
+### Added
+
+- README: an architecture figure at the top of "How it works", drawn with
+  [orrery](https://github.com/Sagargupta16/orrery) from `docs/diagrams/pipeline.yaml`, in
+  dark and light variants. It shows the push that triggers the workflow, validate (failing
+  with error annotations), render, fetch from jsDelivr, logo hosts and api.github.com,
+  write, and the opt-in commit back to the repository. Every node and edge names the file
+  and line it comes from.
+
 ## [1.1.0] - 2026-10-18
 
 ### Added

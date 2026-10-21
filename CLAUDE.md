@@ -62,6 +62,7 @@ uvx ruff@0.17.1 check .
 - `scripts/benchmark.py` -- prints the README Numbers table; re-run it and paste the output when cards change
 - `profile.example.yml` -- every key documented, filled with Sagar's real data; renders `examples/`
 - `examples/` -- the committed gallery the README shows
+- `docs/diagrams/pipeline.yaml` -- the orrery spec behind the README's How it works figure; its header has the render and review commands. Never hand-edit `pipeline-dark.svg` / `pipeline-light.svg`: change the spec and re-render. `orrery verify docs/diagrams/pipeline.yaml` fails when an `evidence:` line has moved
 
 ## Gotchas
 
