@@ -256,7 +256,7 @@ projects:
       zero-downtime deployments across ECS on EC2, ALB, CodePipeline, and
       KMS-encrypted artifacts.
     tech: [Terraform, AWS, Docker, ECS on EC2, CodePipeline, HCL]
-    url: https://github.com/Sagargupta16/Blue_Green_AWS_Terraform
+    url: https://github.com/Sagargupta16/terraform-aws-ecs-blue-green
 
 # button-<key>.svg per entry (156x44, wider only for long labels). icon is a
 # simple-icons slug (https://simpleicons.org), fetched from cdn.jsdelivr.net at

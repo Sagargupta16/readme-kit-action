@@ -69,7 +69,7 @@ Markup for every card, in profile order. Copy what you need into your README; pa
 <a href="https://kalchar.co.in/"><img src="examples/project-kalchar.svg" width="49%" alt="Kalchar: Production folk-art portfolio and commission site for a traditional artist - Madhubani, Pichwai, Lippan, and Gond..." /></a>
 <a href="https://chromewebstore.google.com/detail/gitscope/fndaanihifimmlnmkjdmjbbkbdajolff"><img src="examples/project-gitscope.svg" width="49%" alt="GitScope: A Chrome extension plus web dashboard that adds deep GitHub profile insights - 9-stat grid, coding personality..." /></a>
 <a href="https://sagargupta.online/ledger-sync/"><img src="examples/project-ledger-sync.svg" width="49%" alt="Ledger Sync: A self-hosted personal finance dashboard (v2.19.0) with an AI chatbot that uses 15 read-only tool calls to answer..." /></a>
-<a href="https://github.com/Sagargupta16/Blue_Green_AWS_Terraform"><img src="examples/project-blue-green-aws-terraform.svg" width="49%" alt="Blue Green AWS Terraform: A comprehensive Infrastructure as Code solution for implementing Blue-Green deployment on AWS using Terraform..." /></a>
+<a href="https://github.com/Sagargupta16/terraform-aws-ecs-blue-green"><img src="examples/project-blue-green-aws-terraform.svg" width="49%" alt="Blue Green AWS Terraform: A comprehensive Infrastructure as Code solution for implementing Blue-Green deployment on AWS using Terraform..." /></a>
 </p>
 
 <p align="center">
