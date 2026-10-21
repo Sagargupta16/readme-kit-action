@@ -66,7 +66,7 @@ rail of dated items
 <a href="https://kalchar.co.in/"><img src="examples/project-kalchar.svg" width="49%" alt="Kalchar" /></a>
 <a href="https://chromewebstore.google.com/detail/gitscope/fndaanihifimmlnmkjdmjbbkbdajolff"><img src="examples/project-gitscope.svg" width="49%" alt="GitScope" /></a>
 <a href="https://sagargupta.online/ledger-sync/"><img src="examples/project-ledger-sync.svg" width="49%" alt="Ledger Sync" /></a>
-<a href="https://github.com/Sagargupta16/Blue_Green_AWS_Terraform"><img src="examples/project-blue-green-aws-terraform.svg" width="49%" alt="Blue Green AWS Terraform" /></a>
+<a href="https://github.com/Sagargupta16/terraform-aws-ecs-blue-green"><img src="examples/project-blue-green-aws-terraform.svg" width="49%" alt="Blue Green AWS Terraform" /></a>
 </p>
 
 **buttons** (`button-<key>.svg`): one per link, with a [simple-icons](https://simpleicons.org) glyph
