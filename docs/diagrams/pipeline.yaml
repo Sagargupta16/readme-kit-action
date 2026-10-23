@@ -5,7 +5,8 @@
 title: How readme-kit works
 subtitle: A push to profile.yml runs the action, which validates, fetches, renders and commits the cards.
 direction: right
-layout: { spacing: compact }
+# The tightest gaps, so the three columns stay as narrow as the 64 px icons allow.
+layout: { spacing: 0.5 }
 legend:
   dashed: "Opt-in: github: stats, commit or branch"
 tags:
