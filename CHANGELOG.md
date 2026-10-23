@@ -4,6 +4,15 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions follow
 [Semantic Versioning](https://semver.org/).
 
+## [1.1.2] - 2026-10-24
+
+### Changed
+
+- README: redrew the "How it works" figure with orrery 0.12.0's 64 px icons (they were
+  48 px). `docs/diagrams/pipeline.yaml` now uses the tightest spacing, which brings the
+  figure from 1175 to 1110 px wide, so the README shows it a little larger. Every node,
+  edge and evidence path is unchanged. Docs only; the action is unchanged.
+
 ## [1.1.1] - 2026-10-21
 
 ### Added
