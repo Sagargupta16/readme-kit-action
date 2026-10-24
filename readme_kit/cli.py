@@ -82,20 +82,24 @@ def snippet(cards: list[Card], src_dir: str) -> str:
     )
 
 
+def confined(name: str, value: str) -> Path:
+    """Resolve a path flag, refusing one that lands outside the working directory."""
+    base = Path.cwd().resolve()
+    path = Path(value).resolve()
+    if not path.is_relative_to(base):
+        raise ValueError(
+            f"{name} {value} is outside the working directory {base}; "
+            "readme-kit only reads and writes inside the directory it runs in"
+        )
+    return path
+
+
 def src_base(output_dir: str) -> str:
     """Where snippet.md points: output-dir relative to the repository root (the working directory)."""
     path = Path(output_dir)
     if not path.is_absolute():
         return output_dir
-    try:
-        return path.resolve().relative_to(Path.cwd().resolve()).as_posix()
-    except ValueError:
-        report(
-            "warning",
-            f"{output_dir} is outside the working directory, so the image paths in snippet.md "
-            "are absolute and will not work in a README",
-        )
-        return output_dir
+    return path.resolve().relative_to(Path.cwd().resolve()).as_posix()
 
 
 def raw_base(repository: str, branch: str) -> str:
@@ -157,15 +161,20 @@ def main(argv: list[str] | None = None) -> int:
             "Actions sets it, set it yourself to run locally",
         )
         return 1
+    try:
+        profile_path = confined("config", args.config)
+        out = confined("output-dir", args.output_dir)
+    except ValueError as exc:
+        report("error", str(exc))
+        return 1
     path = Path(args.config)
     try:
-        profile = config.load(path)
+        profile = config.load(profile_path)
     except config.ConfigError as exc:
         for problem in exc.problems:
             report("error", f"{path}: {problem}")
         return 1
     cards = render_all(profile, lambda message: report("warning", message))
-    out = Path(args.output_dir)
     out.mkdir(parents=True, exist_ok=True)
     for card in cards:
         (out / card.name).write_text(card.svg + "\n", encoding="utf-8", newline="\n")
@@ -177,7 +186,7 @@ def main(argv: list[str] | None = None) -> int:
         snippet(cards, base), encoding="utf-8", newline="\n"
     )
     written = len(cards) + 1
-    print(f"{written} files written to {out}")
+    print(f"{written} files written to {Path(args.output_dir)}")
     set_output("files", str(written))
     if not commit:
         set_output("committed", "false")

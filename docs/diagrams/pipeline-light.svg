@@ -23,13 +23,13 @@ groups:
 nodes:
   profile: { icon: tabler:file-code, label: profile.yml, note: you edit and push, in: repo, evidence: "action.yml:13#profile.yml" }
   workflow: { icon: logos:github-actions, label: readme-kit.yml, note: your workflow, in: repo, evidence: "README.md:92#readme-kit.yml" }
-  cards: { icon: tabler:folder, label: assets/readme-kit/, note: or the output branch, in: repo, evidence: "readme_kit/cli.py:127#assets/readme-kit" }
+  cards: { icon: tabler:folder, label: assets/readme-kit/, note: or the output branch, in: repo, evidence: "readme_kit/cli.py:131#assets/readme-kit" }
   readme: { icon: logos:markdown, label: README.md, note: your profile page, in: repo, evidence: "README.md:119#README.md" }
   validate: { icon: tabler:file-check, label: Validate, note: config.py, in: action, evidence: "readme_kit/config.py:461#def load" }
   errors: { icon: tabler:alert-triangle, label: Error annotations, note: exit 1, in: action, evidence: "readme_kit/cli.py:23#::{level}::" }
   render: { icon: tabler:palette, label: Render cards, note: "cards.py, 11 card types", in: action, evidence: "readme_kit/cards.py:825#def render_all" }
   fetch: { icon: tabler:cloud-download, label: Fetch, note: "fetch.py, https only", in: action, evidence: "readme_kit/fetch.py:28#def fetch_bytes" }
-  write: { icon: tabler:file-type-svg, label: Write files, note: "cli.py, SVGs + snippet.md", in: action, evidence: "readme_kit/cli.py:171#write_text" }
+  write: { icon: tabler:file-type-svg, label: Write files, note: "cli.py, SVGs + snippet.md", in: action, evidence: "readme_kit/cli.py:180#write_text" }
   stats: { icon: tabler:chart-bar, label: Live stats, note: github.py, in: action, evidence: "readme_kit/github.py:17#class Client" }
   publish: { icon: github:git-commit, label: Commit and push, note: publish.py, in: action, evidence: ["readme_kit/publish.py:57#def commit_here", "readme_kit/publish.py:72#def commit_to_branch"] }
   jsdelivr: { icon: logos:jsdelivr, label: jsDelivr, note: simple-icons, in: web, evidence: "readme_kit/fetch.py:10#cdn.jsdelivr.net" }
@@ -40,17 +40,17 @@ story: [profile, workflow, validate, render, write, publish, cards, readme]
 
 edges:
   - profile -> workflow: { label: on push, evidence: "README.md:99#paths" }
-  - workflow -> validate: { label: runs, evidence: "readme_kit/cli.py:162#config.load" }
-  - validate -> errors: { label: any error, tags: [fail], evidence: "readme_kit/cli.py:165#report" }
-  - validate -> render: { evidence: "readme_kit/cli.py:167#render_all" }
+  - workflow -> validate: { label: runs, evidence: "readme_kit/cli.py:172#config.load" }
+  - validate -> errors: { label: any error, tags: [fail], evidence: "readme_kit/cli.py:175#report" }
+  - validate -> render: { evidence: "readme_kit/cli.py:177#render_all" }
   - render -> fetch: { evidence: ["readme_kit/cards.py:756#fetch.simple_icon", "readme_kit/cards.py:771#fetch.logo_data_uri"] }
   - render --> stats: { evidence: "readme_kit/cards.py:855#_live_stats" }
   - stats --> fetch: { evidence: "readme_kit/github.py:37#fetch.fetch_bytes" }
   - fetch -> jsdelivr: { evidence: "readme_kit/fetch.py:56#ICON_URL" }
   - fetch -> logos: { evidence: "readme_kit/fetch.py:78#fetch_bytes" }
   - fetch --> api: { evidence: "readme_kit/github.py:27#Authorization" }
-  - render -> write: { evidence: "readme_kit/cli.py:171#write_text" }
-  - write --> publish: { evidence: "readme_kit/cli.py:185#_publish" }
+  - render -> write: { evidence: "readme_kit/cli.py:180#write_text" }
+  - write --> publish: { evidence: "readme_kit/cli.py:194#_publish" }
   # Drawn after layout so the loop back into the repo does not reorder the columns.
   - { from: publish, to: cards, line: dashed, label: git push, constraint: false, evidence: ["readme_kit/publish.py:68#push", "readme_kit/publish.py:112#push"] }
   - cards -> readme: { label: you paste snippet.md, evidence: "README.md:119#Paste" }

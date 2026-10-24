@@ -4,6 +4,28 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions follow
 [Semantic Versioning](https://semver.org/).
 
+## [1.1.3] - 2026-10-24
+
+### Security
+
+- `config` and `output-dir` (and `--config`, `--output-dir`, `$CONFIG_PATH`,
+  `$OUTPUT_DIR`) must now resolve inside the working directory, which on a runner is the
+  checkout. A path that climbs out with `..`, an absolute path elsewhere, or a symlink that
+  leads out fails the run with an error before any file is read or written. Before, the
+  profile could be read from, and the cards written to, any folder the job could reach.
+  This closes the four SonarCloud `pythonsecurity:S8707` path injection findings in
+  `cli.py` and `config.py`. The default and relative paths work as before, and the inputs
+  and outputs are unchanged.
+
+### Changed
+
+- An `output-dir` outside the working directory is now an error. In 1.1.0 it kept its
+  path in `snippet.md` and got a warning. `commit` and a workflow that commits the cards
+  itself always needed it inside the repository; only `branch` and local runs could write
+  elsewhere.
+- README: the How it works figure was re-rendered because its `cli.py` evidence lines
+  moved. The figure itself is unchanged.
+
 ## [1.1.2] - 2026-10-24
 
 ### Changed

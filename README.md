@@ -241,8 +241,8 @@ the variant that matches the viewer's theme:
 
 | Input | Default | Description |
 | --- | --- | --- |
-| `config` | `profile.yml` | Path to the profile YAML file |
-| `output-dir` | `assets/readme-kit` | Directory the SVGs and `snippet.md` are written to |
+| `config` | `profile.yml` | Path to the profile YAML file, inside the working directory |
+| `output-dir` | `assets/readme-kit` | Directory the SVGs and `snippet.md` are written to, inside the working directory |
 | `commit` | `false` | `true` commits `output-dir` on the checked-out branch and pushes it |
 | `branch` | none | Push the cards to this branch instead, as its only commit; implies `commit` |
 | `commit-message` | `chore: render readme cards` | Message for that commit |
@@ -363,6 +363,9 @@ What v1 does not do, so you know before you install it:
   that warning.
 - **Escaped text.** Every string from the profile is HTML-escaped before it reaches an SVG,
   and characters XML forbids are dropped.
+- **Paths stay in the working directory.** `config` and `output-dir` are resolved, and one
+  that lands outside the working directory (the checkout on a runner) through `..`, an
+  absolute path or a symlink fails the run before anything is read or written.
 - **Pinned dependency.** Python standard library plus PyYAML 6.0.3, installed as a pinned
   wheel (`--only-binary :all:`) and read with `yaml.safe_load`.
 - **Self-contained output.** No scripts, no external fonts or images, CSS and SMIL

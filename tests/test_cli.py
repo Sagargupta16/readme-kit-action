@@ -78,6 +78,7 @@ def test_env_vars_choose_the_paths(tmp_path, monkeypatch, downloads):
     monkeypatch.setenv("CONFIG_PATH", str(profile))
     monkeypatch.setenv("OUTPUT_DIR", str(tmp_path / "from-env"))
     monkeypatch.delenv("GITHUB_OUTPUT", raising=False)
+    monkeypatch.chdir(tmp_path)
 
     assert cli.main([]) == 0
 
@@ -90,6 +91,7 @@ def test_config_errors_exit_1_as_annotations_under_actions(
     profile = tmp_path / "profile.yml"
     profile.write_text("hero:\n  kicker: hi\n", encoding="utf-8")
     monkeypatch.setenv("GITHUB_ACTIONS", "true")
+    monkeypatch.chdir(tmp_path)
 
     assert (
         cli.main(["--config", str(profile), "--output-dir", str(tmp_path / "out")]) == 1
@@ -101,6 +103,7 @@ def test_config_errors_exit_1_as_annotations_under_actions(
 
 def test_config_errors_go_to_stderr_locally(tmp_path, monkeypatch, capsys):
     monkeypatch.delenv("GITHUB_ACTIONS", raising=False)
+    monkeypatch.chdir(tmp_path)
 
     assert cli.main(["--config", str(tmp_path / "missing.yml")]) == 1
 
@@ -120,6 +123,7 @@ def test_branch_snippet_points_at_raw_urls(tmp_path, monkeypatch, downloads):
     monkeypatch.setattr(cli.publish, "commit_to_branch", fake_publish)
     output = tmp_path / "github_output"
     monkeypatch.setenv("GITHUB_OUTPUT", str(output))
+    monkeypatch.chdir(tmp_path)
     out = tmp_path / "cards"
 
     assert (
