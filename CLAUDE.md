@@ -62,7 +62,7 @@ uvx ruff@0.17.1 check .
 - `scripts/benchmark.py` -- prints the README Numbers table; re-run it and paste the output when cards change
 - `profile.example.yml` -- every key documented, filled with Sagar's real data; renders `examples/`
 - `examples/` -- the committed gallery the README shows
-- `docs/diagrams/pipeline.yaml` -- the orrery spec behind the README's How it works figure; its header has the render and review commands. Never hand-edit `pipeline-dark.svg` / `pipeline-light.svg`: change the spec and re-render. `orrery verify docs/diagrams/pipeline.yaml` fails when an `evidence:` line has moved
+- `docs/diagrams/pipeline.yaml` -- the orrery spec behind the README's How it works figure; its header has the render and review commands. Never hand-edit `pipeline-dark.svg` / `pipeline-light.svg`: change the spec and re-render. `orrery verify docs/diagrams/pipeline.yaml` fails when an `evidence:` line has moved. The SVGs embed the spec, so on a CRLF Windows checkout render from an LF copy of it, or every embedded line gains `&#13;`
 
 ## Gotchas
 
@@ -84,6 +84,7 @@ uvx ruff@0.17.1 check .
 - The PyYAML pin appears in `action.yml`, `ci.yml`, the README and this file. Bump all of them together.
 - Every profile string goes through `config.clean` at validation and `html.escape` at interpolation. Keep both.
 - Download only through `fetch.fetch_bytes`, which checks the allowlist before `urlopen`, refuses a redirect off https, and caps the size.
+- Every path flag goes through `cli.confined`, which resolves it and refuses one outside the working directory (the fix for SonarCloud `pythonsecurity:S8707`, 2026-10-24). Read and write through the path it returns, never the raw flag; tests that pass `tmp_path` files must `monkeypatch.chdir(tmp_path)`.
 - Never loosen the output-branch guard in `publish.commit_to_branch`: it replaces a branch only when it is missing or its tip is parentless and carries `MARKER`. A one-commit `main` is parentless too, which is why the marker check exists.
 - In `subprocess` text mode on Windows, a newline written to stdin becomes CRLF, so `git mktree` would store file names ending in a carriage return (seen on 2026-10-18). That is why `mktree` gets `-z` and NUL-terminated lines.
 
