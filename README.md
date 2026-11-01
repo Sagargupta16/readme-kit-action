@@ -155,19 +155,6 @@ merge commit. Use `push`, `schedule` or `workflow_dispatch`.
 
 The spec behind the picture is [`docs/diagrams/pipeline.yaml`](docs/diagrams/pipeline.yaml), rendered with [orrery](https://github.com/Sagargupta16/orrery).
 
-```mermaid
-flowchart TD
-    A[profile.yml] --> B["config.py: validate against SECTIONS<br/>every problem reported in one pass"]
-    B -->|any error| X["error annotations, exit 1"]
-    B --> C["cards.py: render_all<br/>11 renderers, one per card type"]
-    C -->|button icons, tile logos| D["fetch.py: https only<br/>size caps, byte sniffing"]
-    C -->|stats with github:| G["github.py: REST API numbers<br/>token sent to api.github.com only"]
-    G --> D
-    C --> E["cli.py: write the SVGs and snippet.md<br/>set the files output"]
-    E -->|commit or branch| P["publish.py: commit and push<br/>or one orphan commit on the output branch"]
-    E -->|neither| F[your workflow commits output-dir]
-```
-
 1. **Validate.** `config.py` holds the whole schema in `SECTIONS`. It checks every section
    before anything renders, fills in defaults, and resolves each card's file name.
 2. **Fetch.** `fetch.py` is the only network code. It downloads simple-icons glyphs for
