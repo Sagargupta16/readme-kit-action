@@ -57,13 +57,13 @@ Markup for every card, in profile order. Copy what you need into your README; pa
 
 <img src="examples/divider.svg" width="100%" alt="" />
 
-<img src="examples/timeline.svg" width="100%" alt="Career: 2021 MCA, NIT Warangal, 2023 Software Dev Intern, 2024 ProServe DevOps Intern, 2024 DevOps/MLOps Cloud Consultant; Customer engagements: State Street, DTCC, RWS" />
+<img src="examples/timeline.svg" width="100%" alt="Career: 2021 MCA, NIT Warangal, 2023 Software Dev Intern, 2024 ProServe DevOps Intern, 2024 DevOps/MLOps Cloud Consultant; Customer engagements: Customer 1, Customer 2, Customer 3" />
 
-<img src="examples/stats.svg" width="100%" alt="Stats: 10/10 average client CSAT; 5/5 average Pulse feedback; 2 published AWS samples; 5x TFC ambassador; 11 merged upstream contributions; 6 industry certifications; Guardian LeetCode, top 1.11%; 1,322 LeetCode problems solved" />
+<img src="examples/stats.svg" width="100%" alt="Stats: 3 APG patterns peer reviewed; 2 published AWS samples; 7x AWS community ambassador; 11 merged upstream contributions; 6 industry certifications; Guardian LeetCode, top 1.11%; 1,322 LeetCode problems solved; 26th ML Hackathon 2025, of 238" />
 
-<img src="examples/tiles.svg" width="100%" alt="Worked with  |  Average CSAT 10/10  |  Average Pulse 5/5: Amazon Web Services, DevOps/MLOps Cloud Consultant; RWS, Lead DevOps Consultant; DTCC, DevOps Consultant; State Street, DevOps Consultant; Ikarus-3D, Software Developer Associate (intern)" />
+<img src="examples/tiles.svg" width="100%" alt="Worked with: Amazon Web Services, DevOps/MLOps Cloud Consultant; Customer 1, Global financial services; Customer 2, Financial market infrastructure; Customer 3, Enterprise; Ikarus-3D, Software Developer Associate (intern)" />
 
-<img src="examples/panels.svg" width="100%" alt="Publications, talks and recognition: SageMaker Image Classification MLOps Pipeline; Terraform AWS Organizations Governance on Control Tower; 3 APG Patterns peer reviewed; APG pattern: Secure PR Previews and Approval-Gated Releases for Amplify Gen 2 with GitHub; GitOps Configuration Safety with Health Checks and Pipeline Gating; Automating Unit Testing for Terraform using Terraform Test and PyTest frameworks; ProServe MLOps SME Program Graduate; 5x TFC Ambassador: AI/ML, NGDE (Graduated), CloudOps (AWS DevOps Agent), Agentic AI, Serverless; Associate Speaker Certification; AWS T&amp;C Subject Matter Expert (SME) Program Contributor; ML Hackathon 2025, 26th/238 teams" />
+<img src="examples/panels.svg" width="100%" alt="Publications, talks and recognition: SageMaker Image Classification MLOps Pipeline; Terraform AWS Organizations Governance on Control Tower; 3 APG Patterns peer reviewed; APG pattern: Secure PR Previews and Approval-Gated Releases for Amplify Gen 2 with GitHub; GitOps Configuration Safety with Health Checks and Pipeline Gating; Automating Unit Testing for Terraform using Terraform Test and PyTest frameworks; 7x AWS community ambassador; Associate Speaker Certification; ML Hackathon 2025, 26th/238 teams" />
 
 <p align="center">
 <a href="https://kalchar.co.in/"><img src="examples/project-kalchar.svg" width="49%" alt="Kalchar: Production folk-art portfolio and commission site for a traditional artist - Madhubani, Pichwai, Lippan, and Gond..." /></a>

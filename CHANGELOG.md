@@ -4,6 +4,24 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions follow
 [Semantic Versioning](https://semver.org/).
 
+## [1.1.4] - 2026-11-14
+
+### Changed
+
+- The example profile, the gallery in `examples/` and the tests no longer carry real
+  customer names, client scores or internal program names. Engagements read
+  `Customer 1` to `Customer 3` with a generic sector each, the Worked with tiles drop
+  their logos and the score line, the stats use public counts only, and the
+  ambassador line reads `7x AWS community ambassador`. The example's Customer 2 dates
+  now end in Nov 2025 like the profile's own card. `examples/` was re-rendered from
+  the new profile with the unchanged renderer, so only the cards that show the text
+  changed (panels, stats, tiles, timeline and the snippet).
+- A test now fails when any text file in the repository (the renderer source aside)
+  spells one of the retired names, not only the example profile and `examples/`.
+
+No input, default or card layout changes: rendering the previous
+`profile.example.yml` with 1.1.4 gives byte-identical SVGs to 1.1.3.
+
 ## [1.1.3] - 2026-10-24
 
 ### Security

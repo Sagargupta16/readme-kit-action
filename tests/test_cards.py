@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import codecs
+import re
 import xml.etree.ElementTree as ET
 from pathlib import Path
 
@@ -60,7 +62,7 @@ CASES = {
                     "subtitle": NASTY,
                     "logo": "https://example.com/logo.png",
                 },
-                {"name": "State Street"},
+                {"name": "Example Corp"},
             ],
         }
     },
@@ -215,7 +217,7 @@ def test_failed_downloads_fall_back_and_name_the_key(offline):
             "buttons": [{"label": "GitHub", "icon": "github"}],
             "tiles": {
                 "items": [
-                    {"name": "State Street", "logo": "https://example.com/ss.png"}
+                    {"name": "Example Corp", "logo": "https://example.com/ec.png"}
                 ]
             },
         }
@@ -229,7 +231,7 @@ def test_failed_downloads_fall_back_and_name_the_key(offline):
     assert "<path d=" not in rendered["button-github.svg"]
     assert 'text-anchor="middle"' in rendered["button-github.svg"]
     assert "<image" not in rendered["tiles.svg"]
-    assert ">SS</text>" in rendered["tiles.svg"]
+    assert ">EC</text>" in rendered["tiles.svg"]
     assert [w.split(":")[0] for w in warnings] == [
         "buttons[0].icon",
         "tiles.items[0].logo",
@@ -252,3 +254,43 @@ def test_example_profile_renders_the_cards_in_examples(downloads):
     assert sorted(card.name for card in rendered) == sorted(
         path.name for path in (ROOT / "examples").glob("*.svg")
     )
+
+
+def test_example_profile_names_no_customer_or_client_metric():
+    # ROT13, so the repository itself never spells the words it forbids
+    banned = [
+        codecs.decode(word, "rot13")
+        for word in (
+            "fgngr fgerrg",
+            "qgpp",
+            "ejf",
+            "pfng",
+            "chyfr",
+            "gsp",
+            "fzr cebtenz",
+        )
+    ]
+    # the renderer source is code, not data, and its divider gradient is named with one
+    # of these words, so it and that id are the only things left out
+    skip = {
+        ".git",
+        ".scratch",
+        ".pytest_cache",
+        ".ruff_cache",
+        "__pycache__",
+        ".venv",
+        "readme_kit",
+    }
+    files = [
+        p
+        for p in ROOT.rglob("*")
+        if p.is_file()
+        and not skip & set(p.relative_to(ROOT).parts)
+        and p.suffix in {".md", ".yml", ".yaml", ".svg", ".py", ".toml", ".json"}
+    ]
+
+    for path in files:
+        text = path.read_text(encoding="utf-8").lower()
+        text = re.sub(r"base64,[a-z0-9+/=]+", "", text)  # inlined logo bytes
+        text = text.replace('id="pulse"', "").replace("url(#pulse)", "")
+        assert [word for word in banned if word in text] == [], path.name

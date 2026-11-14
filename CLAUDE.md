@@ -60,7 +60,7 @@ uvx ruff@0.17.1 check .
 - `readme_kit/github.py` -- `Client` for live stats: `METRICS`, per-path cache, REST and search endpoints
 - `readme_kit/publish.py` -- `commit_here` (add, commit only `output-dir`, push HEAD) and `commit_to_branch` (hash-object, `mktree -z`, `commit-tree` with the `Generated-by: readme-kit` trailer, force-push)
 - `scripts/benchmark.py` -- prints the README Numbers table; re-run it and paste the output when cards change
-- `profile.example.yml` -- every key documented, filled with Sagar's real data; renders `examples/`
+- `profile.example.yml` -- every key documented, filled with fictional customer names (`Customer 1` to `3`) and public counts only; renders `examples/`. Never put a real customer, client metric or internal program name in it: the example profile, `examples/` and the tests are all public (scrubbed in 1.1.4, and `test_example_profile_names_no_customer_or_client_metric` fails on the old words anywhere in the tree except `readme_kit/`). The test strips base64 first, so a re-render can still spell a word inside an inlined logo; keep the AWS logo at `sz=128` and grep the raw files after any re-render
 - `examples/` -- the committed gallery the README shows
 - `docs/diagrams/pipeline.yaml` -- the orrery spec behind the README's How it works figure; its header has the render and review commands. Never hand-edit `pipeline-dark.svg` / `pipeline-light.svg`: change the spec and re-render. `orrery verify docs/diagrams/pipeline.yaml` fails when an `evidence:` line has moved. The SVGs embed the spec, so on a CRLF Windows checkout render from an LF copy of it, or every embedded line gains `&#13;`
 
