@@ -183,20 +183,20 @@ Design decisions:
 
 ## Numbers
 
-Measured with [`scripts/benchmark.py`](scripts/benchmark.py) on 2026-10-18, Python 3.13.15
+Measured with [`scripts/benchmark.py`](scripts/benchmark.py) on 2026-11-14, Python 3.13.17
 on Windows AMD64:
 
 | Measure | Value |
 | --- | --- |
 | Cards rendered from profile.example.yml | 33 |
-| Downloads (simple-icons glyphs and tile logos) | 8 |
-| First render, downloads included | 1,012 ms |
-| Render with downloads cached, median of 50 | 0.7 ms |
-| All cards together | 76.5 KB |
+| Downloads (simple-icons glyphs and tile logos) | 6 |
+| First render, downloads included | 737 ms |
+| Render with downloads cached, median of 50 | 0.4 ms |
+| All cards together | 73.9 KB |
 | Median card | 1.1 KB |
-| Largest card (tiles.svg) | 8.8 KB |
+| Largest card (timeline.svg) | 7.8 KB |
 
-The network is nearly all of the run time. The largest card is the one with inlined logos.
+The network is nearly all of the run time. The largest card is the timeline.
 
 ## Using the cards in your README
 
@@ -307,7 +307,7 @@ each naming the key, and the run exits 1:
 
 ```text
 error: profile.yml: hero.tagline: unknown key, did you mean 'taglines'?
-error: profile.yml: tiles.items[0].logo: 'http://dtcc.com/logo.png' must be a URL starting with https://
+error: profile.yml: tiles.items[0].logo: 'http://example.com/logo.png' must be a URL starting with https://
 error: profile.yml: buttons[0].icon: 'Git Hub' is not a simple-icons slug such as 'linkedin'
 ```
 

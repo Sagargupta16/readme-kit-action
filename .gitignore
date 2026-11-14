@@ -12,6 +12,7 @@ dist/
 # Local renders (examples/ is the committed gallery)
 assets/readme-kit/
 ci-out/
+.scratch/
 
 # Editors and OS
 .vscode/

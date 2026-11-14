@@ -86,7 +86,7 @@ headers:
     subtitle: verified on Credly
     key: certs
 
-# divider.svg: a hairline with a pulse running along it. No options.
+# divider.svg: a hairline with a bright streak running along it. No options.
 divider: true
 
 # timeline.svg: milestones on a rail, oldest first. The last milestone is drawn
@@ -112,14 +112,14 @@ timeline:
     title: Customer engagements
     items: # required, 1 to 6
       - when: Oct 2024 to Aug 2025 # required
-        title: State Street # required
-        subtitle: Terraform module library
-      - when: Aug 2025 to Dec 2025
-        title: DTCC
-        subtitle: Terraform modernization
+        title: Customer 1 # required
+        subtitle: Global financial services
+      - when: Aug 2025 to Nov 2025
+        title: Customer 2
+        subtitle: Financial market infrastructure
       - when: Feb 2026 to now
-        title: RWS
-        subtitle: Lead DevOps, landing zone
+        title: Customer 3
+        subtitle: Enterprise
 
 # stats.svg: a four-column grid of big values, as many rows as needed.
 # color: accent, sky, green or amber; default accent.
@@ -132,17 +132,14 @@ timeline:
 #     value: 300+ # shown only if the API cannot be reached
 #     label: stars on my repositories
 stats:
-  - value: 10/10 # value, github, or both
-    label: average client CSAT # required
-    color: green
-  - value: 5/5
-    label: average Pulse feedback
+  - value: 3 # value, github, or both
+    label: APG patterns peer reviewed # required
     color: green
   - value: 2
     label: published AWS samples
     color: sky
-  - value: 5x
-    label: TFC ambassador
+  - value: 7x
+    label: AWS community ambassador
     color: sky
   - value: 11
     label: merged upstream contributions
@@ -154,24 +151,25 @@ stats:
   - value: "1,322"
     label: LeetCode problems solved
     color: amber
+  - value: 26th
+    label: ML Hackathon 2025, of 238
+    color: green
 
 # tiles.svg: one row of up to six tiles. logo is an https URL of a PNG, JPEG,
 # GIF, WebP or SVG image (256 KB at most), fetched at render time and inlined;
 # with no logo, or when the fetch fails, the tile shows a two-letter monogram.
 tiles:
-  title: Worked with  |  Average CSAT 10/10  |  Average Pulse 5/5
+  title: Worked with
   items: # required, 1 to 6
     - name: Amazon Web Services # required
       subtitle: DevOps/MLOps Cloud Consultant
-      logo: "https://www.google.com/s2/favicons?domain=aws.amazon.com&sz=64"
-    - name: RWS
-      subtitle: Lead DevOps Consultant
-      logo: "https://www.google.com/s2/favicons?domain=rws.com&sz=64"
-    - name: DTCC
-      subtitle: DevOps Consultant
-      logo: "https://www.google.com/s2/favicons?domain=dtcc.com&sz=64"
-    - name: State Street
-      subtitle: DevOps Consultant
+      logo: "https://www.google.com/s2/favicons?domain=aws.amazon.com&sz=128"
+    - name: Customer 1
+      subtitle: Global financial services
+    - name: Customer 2
+      subtitle: Financial market infrastructure
+    - name: Customer 3
+      subtitle: Enterprise
     - name: Ikarus-3D
       subtitle: Software Developer Associate (intern)
 
@@ -200,14 +198,10 @@ panels:
           year: 2025
     - title: Recognition
       entries:
-        - text: ProServe MLOps SME Program Graduate
-          year: 2025
-        - text: "5x TFC Ambassador: AI/ML, NGDE (Graduated), CloudOps (AWS DevOps Agent), Agentic AI, Serverless"
+        - text: "7x AWS community ambassador"
           year: "2025-2026"
         - text: Associate Speaker Certification
           year: 2026
-        - text: "AWS T&C Subject Matter Expert (SME) Program Contributor"
-          year: 2025
         - text: ML Hackathon 2025, 26th/238 teams
           year: 2025
 
